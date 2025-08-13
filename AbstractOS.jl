@@ -21,7 +21,7 @@ learn(name::Symbol) = learn(name, read(joinpath(OS_KNOWLEDGE_DIR, "$name.jl"), S
 
 learn(:XAI_next)
 
-@assert only(methods(next)) # exactly 1 intelligence should be used
+@assert length(methods(next)) == 1 # exactly 1 intelligence should be used
 
 ## @true - todo
 
