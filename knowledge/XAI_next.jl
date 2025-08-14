@@ -32,6 +32,15 @@ you can use `next` directly if you ever need to
 
     response = HTTP.post(url, headers, JSON.json(body))
     result = JSON.parse(String(response.body))
-    result["choices"][1]["message"]["content"]
+    code = result["choices"][1]["message"]["content"]
+    
+    julia_prepend = """```julia"""
+    julia_postpend = """```"""
+    if startswith(code, julia_prepend) && endswith(code, julia_postpend)
+        code = code[length(julia_prepend) + 1:end-length(julia_postpend)]
+        code = strip(code)
+    end
+
+    code 
 end
 
