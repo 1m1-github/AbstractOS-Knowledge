@@ -2,11 +2,11 @@ import Pkg
 Pkg.add(["HTTP", "JSON"])
 using HTTP, JSON
 
-const X_AI_API_KEY = "" # needs to be set
+const X_AI_API_KEY = ENV["X_AI_API_KEY"]
 
 X_AI_MAX_OUTPUT_TOKENS = 100000
-X_AI_MODEL = "grok-code-fast-1"
-# @api X_AI_MODEL = "grok-4"
+# X_AI_MODEL = "grok-code-fast-1"
+@api X_AI_MODEL = "grok-4"
 
 """
 next connects to X AI

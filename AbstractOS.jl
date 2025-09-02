@@ -13,7 +13,7 @@ include(joinpath(OS_ROOT_DIR, "src", "log.jl"))
 ## core
 
 include(joinpath(OS_ROOT_DIR, "src", "core.jl"))
-safe = true
+# safe = true # cannot be true for agency to work
 
 ## utils
 
@@ -32,7 +32,7 @@ learn(:XAI_next)
 map(learn, [
     :MultiPathBrowserOutput,
     # :BrowserOutput, # output device
-    :AgencyAdvice,
+    :Agency,
     :TaskUtils,
     # :Threat, # i rather not threaten, but the intelligence might perform better
     :Incentive,
@@ -42,7 +42,9 @@ map(learn, [
     :DoNotForgetToSetTaskName,
     :OnlyCommunicateWithJuliaCode,
     :UseVariablesToBePreciseVsReproducing,
-    :YourOwnAdviceForYourself,
+    # :YourOwnAdviceForYourself,
+    :LearnAlreadyChecksWhetherInputExists,
+    :LearnShouldLikelyReuseCode,
 ])
 
 ## run at the end
