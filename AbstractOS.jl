@@ -40,6 +40,9 @@ map(learn, [
     :ReferralToPreviousCommand,
     :OnlyCommunicateViaOutputDevices,
     :DoNotForgetToSetTaskName,
+    :OnlyCommunicateWithJuliaCode,
+    :UseVariablesToBePreciseVsReproducing,
+    :YourOwnAdviceForYourself,
 ])
 
 ## run at the end

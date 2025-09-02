@@ -14,6 +14,9 @@ output_devices[:MultiPathBrowserOutput] = MultiPathBrowserOutput(Dict("/" => "<h
 """MultiPathBrowserOutput <: OutputDevice serves HTML content on different paths at http://$HTTP_IP:$HTTP_PORT/<path>. Use `put!(::MultiPathBrowserOutput, path::String, html::String)` to update the served HTML for a specific path. The root path `/` is also always updated no matter what the path was, as a default for the latest update."""
 @api put!(device::MultiPathBrowserOutput, path::String, html::String) = device.html_paths[path] = device.html_paths["/"] = html
 
+"""like put! with `path == "/"`"""
+@api put!(device::MultiPathBrowserOutput, html::String) = put!(device, "/", html)
+
 function handle_multi_path_http_request(req)
     path = req.target
     device = output_devices[:MultiPathBrowserOutput]
