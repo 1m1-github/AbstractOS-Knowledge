@@ -3,18 +3,15 @@ Pkg.add(["HTTP", "JSON"])
 using HTTP, JSON
 
 const X_AI_API_KEY = ENV["X_AI_API_KEY"]
-
 X_AI_MAX_OUTPUT_TOKENS = 100000
-# X_AI_MODEL = "grok-code-fast-1"
-@api X_AI_MODEL = "grok-4"
 
 """
 next connects to X AI
-you can use `next` directly if you ever need to
+you can use `next` directly if you ever need to. `complexity` is passed as model (grok-code-fast-1,grok-4-fast-reasoning,grok-4-fast-non-reasoning,grok-4-0709), unless it is a `Number`, in which case we translated to a model
 """
-function next(;system::String, user::String)::String
-    messages = [Dict("role" => "system", "content" => system)]
-    push!(messages, Dict("role" => "user", "content" => user))
+function next(who, what_system, what_user, complexity)::String
+    messages = [Dict("role" => "system", "content" => what_system)]
+    push!(messages, Dict("role" => "user", "content" => what_user))
 
     url = "https://api.x.ai/v1/chat/completions"
 
@@ -23,8 +20,18 @@ function next(;system::String, user::String)::String
         "Content-Type" => "application/json"
     ]
 
+    if isa(complexity, Number)
+        if complexity < 0.3
+            complexity = "grok-code-fast-1"
+        elseif complexity < 0.7
+            complexity = "grok-4-fast-reasoning"
+        else
+            complexity = "grok-4-0709"
+        end
+    end
+
     body = Dict(
-        "model" => X_AI_MODEL,
+        "model" => complexity,
         "stream" => false,
         "messages" => messages,
         "max_tokens" => X_AI_MAX_OUTPUT_TOKENS,
@@ -32,7 +39,7 @@ function next(;system::String, user::String)::String
     )
 
     input_logfile = file_stream("input.jl") # DEBUG
-    write(input_logfile, "$system\n$user") # DEBUG
+    write(input_logfile, "$who\n$what_system\n$what_user") # DEBUG
     close(input_logfile) # DEBUG
 
     response = HTTP.post(url, headers, JSON.json(body))

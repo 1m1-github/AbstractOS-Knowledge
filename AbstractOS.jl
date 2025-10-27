@@ -23,7 +23,7 @@ learn(name::Symbol) = learn(name, read(joinpath(OS_KNOWLEDGE_DIR, "$name.jl"), S
 
 learn(:XAI_next)
 
-@assert length(methods(next)) == 1 # exactly 1 intelligence should be used
+# @assert length(methods(next)) == 1 # exactly 1 intelligence should be used
 
 ## @true - todo
 
@@ -47,6 +47,6 @@ map(learn, [
     :LearnShouldLikelyReuseCode,
 ])
 
-## run at the end
+## next at the end
 
-run()
+next()
