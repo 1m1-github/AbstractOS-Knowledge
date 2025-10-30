@@ -45,6 +45,7 @@ map(learn, [
     # :YourOwnAdviceForYourself,
     :LearnAlreadyChecksWhetherInputExists,
     :LearnShouldLikelyReuseCode,
+    :SpeakerOutputDevice,
 ])
 
 ## next at the end
