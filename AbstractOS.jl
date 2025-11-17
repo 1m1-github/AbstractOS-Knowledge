@@ -17,7 +17,7 @@ include(joinpath(OS_ROOT_DIR, "src", "core.jl"))
 
 ## utils
 
-learn(name::Symbol) = learn(name, read(joinpath(OS_KNOWLEDGE_DIR, "$name.jl"), String))
+learn(name::Symbol) = learn(STATES[UUID(0)], name, read(joinpath(OS_KNOWLEDGE_DIR, "$name.jl"), String))
 
 ## intelligence - needs to implement `next(;system::String, user::String)::String`
 
@@ -30,8 +30,16 @@ learn(:XAI_next)
 ## knowledge and devices
 
 map(learn, [
-    :MultiPathBrowserOutput,
+    ### Devices
+    # :MiniFBOutput,
+    # :DrawWithCairo,
+    # :MultiPathBrowserOutput,
+    # :MainBrowser,
+    # :MultiPathBrowserOutputWithAudioInput,
     # :BrowserOutput, # output device
+    :LessonsBrowser,
+    # :SpeakerOutputDevice,
+    ### Advice
     :Agency,
     :TaskUtils,
     # :Threat, # i rather not threaten, but the intelligence might perform better
@@ -45,9 +53,9 @@ map(learn, [
     # :YourOwnAdviceForYourself,
     :LearnAlreadyChecksWhetherInputExists,
     :LearnShouldLikelyReuseCode,
-    :SpeakerOutputDevice,
+    :NoCommentsInCode,
 ])
 
-## next at the end
-
-next()
+## REPL and next at the end
+learn(:REPLOutput)
+next(STATES[UUID(0)])

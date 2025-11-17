@@ -11,7 +11,7 @@ mutable struct BrowserOutput <: OutputDevice
 end
 output_devices[:BrowserOutput] = BrowserOutput("""<html><body>1M1</body></html>""")
 
-"""BrowserOutput <: OutputDevice serves HTML content on http://$HTTP_IP:$HTTP_PORT. Use `put!(::BrowserOutput, html::String)` to update the served HTML."""
+"""Serves HTML content on http://$HTTP_IP:$HTTP_PORT. Use `put!(output_devices[:BrowserOutput]::BrowserOutput, html::String)` to update the served HTML."""
 @api put!(device::BrowserOutput, html::String) = device.current_html = html
 
 function handle_http_request(req)

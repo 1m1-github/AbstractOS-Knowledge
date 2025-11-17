@@ -3,7 +3,7 @@ Pkg.add(["HTTP"])
 using HTTP
 
 const HTTP_IP = "127.0.0.1"
-const HTTP_PORT = 8080
+HTTP_PORT = 8080
 
 const HTMLCode = String
 mutable struct MultiPathBrowserOutput <: OutputDevice 
@@ -28,4 +28,15 @@ function handle_multi_path_http_request(req)
     end
 end
 
-@async HTTP.serve(handle_multi_path_http_request, HTTP_IP, HTTP_PORT)
+@async begin
+    global HTTP_PORT
+    while true
+        try
+            HTTP.serve(handle_multi_path_http_request, HTTP_IP, HTTP_PORT)
+        catch e
+            !(e isa Base.IOError) && break
+            HTTP_PORT += 1
+            @show HTTP_PORT
+        end
+    end
+end
