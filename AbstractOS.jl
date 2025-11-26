@@ -64,8 +64,5 @@ map(learn, [
     # :Context,
 ])
 
-## REPL and next at the end
-learn(:REPLOutput)
-learn(:REPLInput)
-next(STATES[UUID(0)])
-# next(STATES[UUID(0)], false)
+## REPL goes last
+include(joinpath(OS_ROOT_DIR, "src", "repl.jl"))
