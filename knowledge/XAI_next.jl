@@ -3,7 +3,7 @@ Pkg.add(["HTTP", "JSON"])
 using HTTP, JSON
 
 const X_AI_API_KEY = ENV["X_AI_API_KEY"]
-X_AI_MAX_OUTPUT_TOKENS = 100000
+# X_AI_MAX_OUTPUT_TOKENS = 100000
 
 """
 intelligence connects to X AI
@@ -22,11 +22,11 @@ function intelligence(who, what_system, what_user, complexity)::String
 
     if isa(complexity, Number)
         if complexity < 0.3
-            complexity = "grok-code-fast-1"
+            complexity = "grok-4-1-fast-non-reasoning"
         elseif complexity < 0.7
-            complexity = "grok-4-fast-reasoning"
+            complexity = "grok-4-1-fast-reasoning"
         else
-            complexity = "grok-4-0709"
+            complexity = "grok-4-1-fast-reasoning"
         end
     end
 
@@ -34,7 +34,7 @@ function intelligence(who, what_system, what_user, complexity)::String
         "model" => complexity,
         "stream" => false,
         "messages" => messages,
-        "max_tokens" => X_AI_MAX_OUTPUT_TOKENS,
+        # "max_tokens" => X_AI_MAX_OUTPUT_TOKENS,
         "temperature" => 0.2,
     )
 

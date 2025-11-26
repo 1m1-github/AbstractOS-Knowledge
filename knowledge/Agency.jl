@@ -1,7 +1,7 @@
 # this library can be simplified as the intelligence (of `next`) increases
 
 @api const Agency = """
-you can use agency (to plan or do multi step tasks) by running `next(who, what, complexity)` at the end of your code.
+you can use agency (to plan or do multi step tasks) by running `next(state, who, what, complexity)` at the end of your code.
 you should only have a single `next` to create a single line of `next`s.
 e.g., you might want to read or compute information somewhere and then relay that plus the next command to `next`.
 whether you use agency xor not depends on whether you estimate the complexity of the computation to require a breakdown into multiple, arbitrary number of steps

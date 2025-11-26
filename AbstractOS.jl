@@ -31,22 +31,23 @@ learn(:XAI_next)
 
 map(learn, [
     ### Devices
+    # :MainBrowser,
+    # :LessonsBrowser,
     # :MiniFBOutput,
     # :DrawWithCairo,
     # :MultiPathBrowserOutput,
-    # :MainBrowser,
     # :MultiPathBrowserOutputWithAudioInput,
     # :BrowserOutput, # output device
-    :LessonsBrowser,
     # :SpeakerOutputDevice,
     ### Advice
+    :LetYourNameBeJarvis,
     :Agency,
     :TaskUtils,
     # :Threat, # i rather not threaten, but the intelligence might perform better
     :Incentive,
     :OnlyLearnWhenTold,
     :ReferralToPreviousCommand,
-    :OnlyCommunicateViaOutputDevices,
+    # :OnlyCommunicateViaOutputDevices,
     :DoNotForgetToSetTaskName,
     :OnlyCommunicateWithJuliaCode,
     :UseVariablesToBePreciseVsReproducing,
@@ -54,8 +55,17 @@ map(learn, [
     :LearnAlreadyChecksWhetherInputExists,
     :LearnShouldLikelyReuseCode,
     :NoCommentsInCode,
+    :StateIdUsage,
+    :NeverCreateDevicesUnlessAsked,
+    :InCodingBeAMinimalist,
+    ### Utils
+    :SendEmail,
+    ### Context
+    # :Context,
 ])
 
 ## REPL and next at the end
 learn(:REPLOutput)
+learn(:REPLInput)
 next(STATES[UUID(0)])
+# next(STATES[UUID(0)], false)

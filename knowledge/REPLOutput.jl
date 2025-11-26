@@ -12,4 +12,5 @@ STATES[UUID(0)].output_devices[:REPL] = REPLOutput()
 
 term = REPL.Terminals.TTYTerminal("AbstractOS", stdin, stdout, stderr)
 repl = REPL.LineEditREPL(term, true)
-REPL.run_repl(repl)
+# @async REPL.run_repl(repl) # this way, initrepld does not find active_repl
+REPL.run_repl(repl) # this way blocks and we do not run `learn(:REPLInput); next(STATES[UUID(0)])`
