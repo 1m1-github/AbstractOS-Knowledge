@@ -1,4 +1,5 @@
 ## config file for AbstractOS.jl - adjusted for imi
+# julia -i -t 8 AbstractOS.jl
 
 ## params
 
@@ -58,11 +59,14 @@ map(learn, [
     :StateIdUsage,
     :NeverCreateDevicesUnlessAsked,
     :InCodingBeAMinimalist,
+    :CheckYourAnswer,
     ### Utils
     :SendEmail,
+    :PythonAgentAPI,
     ### Context
     # :Context,
 ])
 
 ## REPL goes last
 include(joinpath(OS_ROOT_DIR, "src", "repl.jl"))
+next(STATES[UUID(0)], false)

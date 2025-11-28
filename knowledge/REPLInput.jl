@@ -1,26 +1,17 @@
-using Pkg
-Pkg.add("ReplMaker")
-using ReplMaker
+struct REPLInput <: InputDevice end
 
-struct REPLInput <: InputDevice
-    chan::Channel{String}
-end
-REPLInput() = REPLInput(Channel{String}(Inf))
-take!(d::REPLInput) = take!(d.chan)
+@api take!(::REPLInput) = nothing
 
 STATES[UUID(0)].input_devices[:REPL] = REPLInput()
-next(STATES[UUID(0)], false)
 
 function repl_parse(s::String)
-    put!(STATES[UUID(0)].input_devices[:REPL].chan, s)
-    nothing
+    # @show "repl_parse", s, length(s) # DEBUG
+    # @show strip(s), length(strip(s)) # DEBUG
+    state = STATES[UUID(0)]
+    device = state.input_devices[:REPL]
+
+    # todo lock?
+    next(state, device, string(strip(s)))
+
+    return
 end
-
-initrepl(repl_parse,
-         prompt_text="aos> ",
-         prompt_color=:blue,
-         start_key="\\C-a",
-         mode_name="AOS_mode",
-         valid_input_checker=complete_julia)
-
-write(STDIN.buffer, "\x01")
