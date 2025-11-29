@@ -9,9 +9,9 @@ const HTMLCode = String
 mutable struct MultiPathBrowserOutput <: OutputDevice 
     html_paths::Dict{String, HTMLCode}
 end
-output_devices[:MultiPathBrowserOutput] = MultiPathBrowserOutput(Dict("/" => "<html><body>Welcome to MultiPathBrowserOutput</body></html>"))
+OUTPUT_DEVICES[:MultiPathBrowserOutput] = MultiPathBrowserOutput(Dict("/" => "<html><body>Welcome to MultiPathBrowserOutput</body></html>"))
 
-"""MultiPathBrowserOutput <: OutputDevice serves HTML content on different paths at http://$HTTP_IP:$HTTP_PORT/<path>. Use `put!(::MultiPathBrowserOutput, path::String, html::String)` to update the served HTML for a specific path. The root path `/` is also always updated no matter what the path was, as a default for the latest update."""
+"""MultiPathBrowserOutput <: OutputDevice serves HTML content on different paths at http://$HTTP_IP:$HTTP_PORT/<path>. Use `put!(::MultiPathBrowserOutput, path::String, html::String)` to update the served HTML for a specific path. The root path `/` is also always updated no matter what the path was, as a default for the latest update. If this is installed, use this as the main output device."""
 @api put!(device::MultiPathBrowserOutput, path::String, html::String) = device.html_paths[path] = device.html_paths["/"] = html
 
 """like put! with `path == "/"`"""
@@ -19,7 +19,7 @@ output_devices[:MultiPathBrowserOutput] = MultiPathBrowserOutput(Dict("/" => "<h
 
 function handle_multi_path_http_request(req)
     path = req.target
-    device = output_devices[:MultiPathBrowserOutput]
+    device = OUTPUT_DEVICES[:MultiPathBrowserOutput]
     if haskey(device.html_paths, path)
         headers = ["Content-Security-Policy" => "script-src 'self' 'unsafe-inline' 'unsafe-eval' $HTTP_IP"]
         HTTP.Response(200, headers, device.html_paths[path])

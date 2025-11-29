@@ -3,13 +3,13 @@ Pkg.add(["HTTP", "JSON"])
 using HTTP, JSON
 
 const X_AI_API_KEY = ENV["X_AI_API_KEY"]
-# X_AI_MAX_OUTPUT_TOKENS = 100000
+X_AI_MAX_OUTPUT_TOKENS = 1000000
 
 """
 intelligence connects to X AI
 you can use `intelligence` directly if you ever need to. `complexity` is passed as model (grok-code-fast-1,grok-4-fast-reasoning,grok-4-fast-non-reasoning,grok-4-0709), unless it is a `Number`, in which case we translated to a model
 """
-function intelligence(who, what_system, what_user, complexity)::String
+function intelligence(who, what_system, what_user, complexity, max_tokens=X_AI_MAX_OUTPUT_TOKENS)::String
     messages = [Dict("role" => "system", "content" => what_system)]
     push!(messages, Dict("role" => "user", "content" => what_user))
 
@@ -34,8 +34,8 @@ function intelligence(who, what_system, what_user, complexity)::String
         "model" => complexity,
         "stream" => false,
         "messages" => messages,
-        # "max_tokens" => X_AI_MAX_OUTPUT_TOKENS,
         "temperature" => 0.2,
+        "max_tokens" => max_tokens,
     )
 
     response = HTTP.post(url, headers, JSON.json(body))

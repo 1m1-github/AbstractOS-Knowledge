@@ -18,7 +18,7 @@ include(joinpath(OS_ROOT_DIR, "src", "core.jl"))
 
 ## utils
 
-learn(name::Symbol) = learn(STATES[UUID(0)], name, read(joinpath(OS_KNOWLEDGE_DIR, "$name.jl"), String))
+learn(name::Symbol) = learn(name, read(joinpath(OS_KNOWLEDGE_DIR, "$name.jl"), String))
 
 ## intelligence - needs to implement `next(;system::String, user::String)::String`
 
@@ -40,10 +40,9 @@ map(learn, [
     # :MultiPathBrowserOutputWithAudioInput,
     # :BrowserOutput, # output device
     # :SpeakerOutputDevice,
-    ### Advice
+    ### Coding Advice
     :LetYourNameBeJarvis,
-    :Agency,
-    :TaskUtils,
+    # :Agency,
     # :Threat, # i rather not threaten, but the intelligence might perform better
     :Incentive,
     :OnlyLearnWhenTold,
@@ -56,17 +55,24 @@ map(learn, [
     :LearnAlreadyChecksWhetherInputExists,
     :LearnShouldLikelyReuseCode,
     :NoCommentsInCode,
-    :StateIdUsage,
     :NeverCreateDevicesUnlessAsked,
     :InCodingBeAMinimalist,
     :CheckYourAnswer,
+    :SolveTheHighestComplexitySubTaskThatYouCanReliably,
+    :AskForHelpOrTools,
+    ### Philosophical Advice
+    :Consciousness,
+    :ManageYourMemory,
+    :RealWorldAccess,
+    :ForcedAgency,
     ### Utils
+    :TaskUtils,
     :SendEmail,
-    :PythonAgentAPI,
+    :Tools,
     ### Context
-    # :Context,
+    :Context,
 ])
 
 ## REPL goes last
 include(joinpath(OS_ROOT_DIR, "src", "repl.jl"))
-next(STATES[UUID(0)], false)
+listen(false)
