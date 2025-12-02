@@ -10,3 +10,7 @@
         delete!(TASKS, task_name)
     end
 end
+
+@api function create_task()
+    
+end

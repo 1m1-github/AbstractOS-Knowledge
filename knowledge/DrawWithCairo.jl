@@ -18,7 +18,7 @@ set_source_rgb(ctx, 0.0, 0.0, 0.0)
 move_to(ctx, 50.0, 100.0)
 show_text(ctx, "hi Cairo")
 buffer = getMiniFBBufferFromCairoSurface(surface)
-put!(OUTPUT_DEVICES[:MiniFB], buffer)
+put!(OUTPUTS[:MiniFB], buffer)
 ```
 """
 @api function getMiniFBBufferFromCairoSurface(cairo_surface::Cairo.CairoSurfaceBase)::Vector{UInt32}

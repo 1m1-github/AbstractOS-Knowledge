@@ -1,8 +1,7 @@
-struct SpeechOutput <: OutputDevice end
+struct SpeechOutput <: OutputPeripheral end
 
 """
-SpeechOutput <: OutputDevice allows text-to-speech output to "talk" to the user.
-Always speak at the end, meaning after communicating on other output devices, so the user can e.g. see something whilst listening.
+SpeechOutput <: OutputPeripheral allows text-to-speech output to talk
 Use `put!(::SpeechOutput, text::String)` to speak the given text using platform-specific TTS tools.
 Assumes system TTS commands are available (e.g., 'say' on macOS, 'espeak' on Linux, System.Speech on Windows).
 """
@@ -18,4 +17,4 @@ function put!(::SpeechOutput, text::String)
     end
 end
 
-output_devices[:speech] = SpeechOutput()
+OUTPUTS["speech"] = SpeechOutput()

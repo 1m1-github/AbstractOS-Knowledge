@@ -215,10 +215,10 @@ send information to the browser
 `javascript` will be run by adding and removing it from `head`, allowing you to do dynamic things, best define variables using `let` not `const` else if get an Identifier x has already been declared
 """
 @api function put!(::LessonsBrowserOutput, state_id::UUID, speech::String, html::String, javascript::String)
-    STATES[state_id].output_devices[:LessonsBrowserOutput].sessions[state_id].speech = speech
-    STATES[state_id].output_devices[:LessonsBrowserOutput].sessions[state_id].html = html
-    STATES[state_id].output_devices[:LessonsBrowserOutput].sessions[state_id].javascript = javascript
-    websocket = STATES[state_id].output_devices[:LessonsBrowserOutput].sessions[state_id].websocket
+    STATES[state_id].OUTPUTS[:LessonsBrowserOutput].sessions[state_id].speech = speech
+    STATES[state_id].OUTPUTS[:LessonsBrowserOutput].sessions[state_id].html = html
+    STATES[state_id].OUTPUTS[:LessonsBrowserOutput].sessions[state_id].javascript = javascript
+    websocket = STATES[state_id].OUTPUTS[:LessonsBrowserOutput].sessions[state_id].websocket
     answer = JSON3.write(Dict(
         :speech => speech,
         :html => html,
@@ -243,7 +243,7 @@ end
     STATES[state_id] = empty_state()
     STATES[state_id].state_id = state_id
     STATES[state_id].input_devices[:LessonsBrowserInput] = LessonsBrowserInput(Channel{String}())
-    STATES[state_id].output_devices[:LessonsBrowserOutput] = LessonsBrowserOutput(Dict(state_id => WebSocketSession(state_id, websocket, SPEECH, HTML, JAVASCRIPT)))
+    STATES[state_id].OUTPUTS[:LessonsBrowserOutput] = LessonsBrowserOutput(Dict(state_id => WebSocketSession(state_id, websocket, SPEECH, HTML, JAVASCRIPT)))
     STATES[state_id].memory[:lesson] = Lesson("", "", DateTime(0), false)
     STATES[state_id].knowledge = STATES[UUID(0)].knowledge
     next(STATES[state_id], false)
@@ -258,7 +258,7 @@ end
         intelligence_running_old = intelligence_running
         visibility = intelligence_running ? "visible" : "hidden"
         try
-            put!(STATES[state_id].output_devices[:LessonsBrowserOutput], state_id, "", "", """if (document.getElementById("RUNNING")) {document.getElementById("RUNNING").style.visibility = "$visibility"}""")
+            put!(STATES[state_id].OUTPUTS[:LessonsBrowserOutput], state_id, "", "", """if (document.getElementById("RUNNING")) {document.getElementById("RUNNING").style.visibility = "$visibility"}""")
         catch
             break
         end

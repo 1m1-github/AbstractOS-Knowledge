@@ -9,14 +9,14 @@ const HTMLCode = String
 mutable struct BrowserOutput <: OutputDevice 
     current_html::HTMLCode
 end
-output_devices[:BrowserOutput] = BrowserOutput("""<html><body>1M1</body></html>""")
+OUTPUTS[:BrowserOutput] = BrowserOutput("""<html><body>1M1</body></html>""")
 
-"""Serves HTML content on http://$HTTP_IP:$HTTP_PORT. Use `put!(output_devices[:BrowserOutput]::BrowserOutput, html::String)` to update the served HTML."""
+"""Serves HTML content on http://$HTTP_IP:$HTTP_PORT. Use `put!(OUTPUTS[:BrowserOutput]::BrowserOutput, html::String)` to update the served HTML."""
 @api put!(device::BrowserOutput, html::String) = device.current_html = html
 
 function handle_http_request(req)
     headers = ["Content-Security-Policy" => "script-src 'self' 'unsafe-inline' 'unsafe-eval' $HTTP_IP"]
-    HTTP.Response(200, headers, output_devices[:BrowserOutput].current_html)
+    HTTP.Response(200, headers, OUTPUTS[:BrowserOutput].current_html)
 end
 
 @async HTTP.serve(handle_http_request, HTTP_IP, HTTP_PORT)

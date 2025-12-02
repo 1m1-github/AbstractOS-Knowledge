@@ -1,6 +1,4 @@
-import Pkg
-Pkg.add(["HTTP", "JSON"])
-using HTTP, JSON
+@install HTTP, JSON
 
 """
 intelligence connects to X AI
@@ -14,14 +12,14 @@ else
     complexity = "grok-4-1-fast-reasoning"
 end
 """
-function intelligence(who, what_system, what_user, complexity=0.5, max_tokens=1000000, temperature=0.2)::String
+@api function intelligence(who, what_system, what_user, complexity=0.5, max_tokens=1000000, temperature=0.2)::JuliaCode
     messages = [Dict("role" => "system", "content" => what_system)]
     push!(messages, Dict("role" => "user", "content" => what_user))
 
     url = "https://api.x.ai/v1/chat/completions"
 
     headers = [
-        "Authorization" => "Bearer $(ENV["X_AI_API_KEY"])",
+        "Authorization" => """Bearer $(ENV["X_AI_API_KEY"])""",
         "Content-Type" => "application/json"
     ]
 
@@ -45,17 +43,17 @@ function intelligence(who, what_system, what_user, complexity=0.5, max_tokens=10
 
     response = HTTP.post(url, headers, JSON.json(body))
     result = JSON.parse(String(response.body))
-    code = result["choices"][1]["message"]["content"]
+    how = result["choices"][1]["message"]["content"]
     
-    code = remove_prepend(code, """```julia""")
-    remove_prepend(code, """```""")
+    how = remove_prepend(how, """```julia""")
+    remove_prepend(how, """```""")
 end
 
-function remove_prepend(code, prepend)
+function remove_prepend(how, prepend)
     postpend = """```"""
-    if startswith(code, prepend) && endswith(code, postpend)
-        code = code[length(prepend) + 1:end-length(postpend)]
-        code = strip(code)
+    if startswith(how, prepend) && endswith(how, postpend)
+        how = how[length(prepend) + 1:end-length(postpend)]
+        how = strip(how)
     end
-    code
+    how
 end

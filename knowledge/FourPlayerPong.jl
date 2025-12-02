@@ -174,4 +174,4 @@ html_content = """
 </html>
 """
 
-put!(output_devices[:MultiPathBrowserOutput], "/pong-game", html_content)
+put!(OUTPUTS[:MultiPathBrowserOutput], "/pong-game", html_content)

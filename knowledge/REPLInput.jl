@@ -1,15 +1,11 @@
-struct REPLInput <: InputDevice end
+struct REPLInput <: InputPeripheral end
 
 @api take!(::REPLInput) = nothing
 
-INPUT_DEVICES[:REPL] = REPLInput()
+INPUTS["REPL"] = REPLInput()
 
 function repl_parse(s::String)
-    # @show "repl_parse", s, length(s) # DEBUG
-    # @show strip(s), length(strip(s)) # DEBUG
-
     # todo lock?
-    next(INPUT_DEVICES[:REPL], string(strip(s)))
-
+    next(INPUTS["REPL"], string(strip(s)))
     return
 end
