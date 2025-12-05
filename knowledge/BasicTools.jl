@@ -1,4 +1,5 @@
-@install HTTP, JSON3, Gumbo, SQLite, Plots, Base64, Dates, Cascadia, SMTPClient
+# @install HTTP, JSON3, Gumbo, SQLite, Plots, Base64, Dates, Cascadia, SMTPClient, Serialization
+@install HTTP, JSON3, Base64, Dates, SMTPClient, Serialization
 
 struct CmdRedirect
     stdout::String
@@ -6,23 +7,27 @@ struct CmdRedirect
     exitcode::Int
 end
 
-"Uses DuckDuckGo API for searching"
-function web_search(query::String, num_results::Int=5)::Vector{Dict{String,Any}}
-    q = replace(HTTP.escapeuri(query), "%20" => "+")
-    url = "https://api.duckduckgo.com/?q=west%20africa&format=json"
-    resp = HTTP.get(url)
-    body = String(resp.body)
-    results = Dict{String,Any}[]
-    rx = r"""<div class="result[^"]*web-result[^>]*>.*?<h2 class="result__title">\s*<a.*?href="//duckduckgo\.com/l/\?uddg=([^&"]+).*?>([^<]+)</a>.*?result__url"\s+href="[^"]*">([^<]+)</a>.*?<a class="result__snippet".*?>([^<]+?)</a>.*?</div>"""s
-    count = 1
-    for m in eachmatch(rx, body)
-        href = m.captures[1]
-        title = strip(m.captures[2])
-        domain = strip(m.captures[3])
-        snippet = strip(m.captures[4])
-        real_url = HTTP.unescapeuri(href)
-        push!(results, Dict("title" => title, "url" => real_url, "snippet" => snippet, "domain" => domain))
-        count += 1 ; num_results < count && break
+"Uses DuckDuckGo API for searching returning a Dict with :title, :url and :snippet keys"
+function ddg_search(query::String; num_results::Int=10)
+    encoded_query = HTTP.URIs.escapeuri(query)
+    url = "https://html.duckduckgo.com/html/?q=$(encoded_query)"
+    response = HTTP.get(url)
+    html = String(response.body)
+    results = []
+    link_pattern = r"<a rel=\"nofollow\" class=\"result__a\" href=\"([^\"]+)\">(.+?)</a>"
+    snippet_pattern = r"<a class=\"result__snippet\"[^>]*>(.+?)</a>"
+    links = collect(eachmatch(link_pattern, html))
+    snippets = collect(eachmatch(snippet_pattern, html))
+    for i in 1:min(num_results, length(links))
+        title = replace(links[i].captures[2], r"<[^>]+>" => "")
+        url = links[i].captures[1]
+        snippet = i <= length(snippets) ? 
+            replace(snippets[i].captures[1], r"<[^>]+>" => "") : ""
+        push!(results, Dict(
+            :title => strip(title),
+            :url => url,
+            :snippet => strip(snippet)
+        ))
     end
     results
 end
@@ -35,14 +40,10 @@ end
 end
 
 "Handles binary download safely"
-@api function download_file(url::String, local_path::String)::Nothing
-    HTTP.download(url, local_path)
-end
+@api download_file(url::String, local_path::String)::Nothing = HTTP.download(url, local_path)
 
 "Handles large files efficiently"
-@api function read_file(path::String)::String
-    read(path, String)
-end
+@api read_file(path::String)::String = read(path, String)
 
 "Ensures atomic write for safety"
 @api function write_file(path::String, content::String)::Nothing
@@ -81,18 +82,16 @@ end
 end
 
 "Handles malformed JSON gracefully"
-@api function parse_json(json_str::String)::Any
-    JSON3.read(json_str)
-end
+@api parse_json(json_str::String)::Any = JSON3.read(json_str)
 
-"Converts results to rows with column mapping"
-@api function query_sqlite(db_path::String, query::String)::Vector{Dict{String,Any}}
-    db = SQLite.DB(db_path)
-    stmt = prepare(db, query)
-    res = execute(stmt)
-    cols = names(stmt)
-    [Dict(zip(cols, row)) for row in Tables.rowtable(res)]
-end
+# "Converts results to rows with column mapping"
+# @api function query_sqlite(db_path::String, query::String)::Vector{Dict{String,Any}}
+#     db = SQLite.DB(db_path)
+#     stmt = prepare(db, query)
+#     res = execute(stmt)
+#     cols = names(stmt)
+#     [Dict(zip(cols, row)) for row in Tables.rowtable(res)]
+# end
 
 # """Assumes variable x and equation like "x^2 - 1"."""
 # @api function solve_equation(expr::String)::Any
@@ -101,52 +100,71 @@ end
 #     solve(eq, x)
 # end
 
-"Supports line plots with x y vectors in data"
-@api function generate_plot(data::Dict, plot_type::Symbol=:line)::String
-    plot_type ≠ :line && throw(ArgumentError("Only :line supported"))
-    xs = data[:x]
-    ys = data[:y]
-    p = plot(xs, ys)
-    tmp = tempname() * ".png"
-    savefig(p, tmp)
-    b64 = base64encode(read(tmp))
-    rm(tmp)
-    b64
-end
-
-"Uses external whisper CLI if available"
-@api function transcribe_audio(audio_path::String)::String
-    out = IOBuffer()
-    err = IOBuffer()
-    proc = run(pipeline(`whisper $audio_path`, stdout=out, stderr=err), wait=true)
-    success(proc) || throw(ErrorException("Whisper failed: $(String(take!(err)))"))
-    String(take!(out)) |> strip
-end
+# "Supports line plots with x y vectors in data"
+# @api function generate_plot(data::Dict, plot_type::Symbol=:line)::String
+#     plot_type ≠ :line && throw(ArgumentError("Only :line supported"))
+#     xs = data[:x]
+#     ys = data[:y]
+#     p = plot(xs, ys)
+#     tmp = tempname() * ".png"
+#     savefig(p, tmp)
+#     b64 = base64encode(read(tmp))
+#     rm(tmp)
+#     b64
+# end
 
 "Takes leading sentences until length limit"
-@api function summarize_text(text::String, max_length::Int=200)::String
-    intelligence(nothing, "", "summarize text:$text", 0.3, max_length)
-end
+@api summarize_text(text::String, max_length::Int=200)::String = intelligence(nothing, "", "summarize text:$text", 0.3, max_length)
 
-"Serializes value as Julia code with timestamp"
-@api function backup_memory(key::Symbol)::Nothing
-    val = MEMORY[key]
-    ts = Dates.format(now(), "yyyy-mm-dd_HH-MM-SSs")
-    fname = "backup_$(key)_$ts.jl"
-    open(fname, "w") do f
-        println(f, "MEMORY[$(QuoteNode(key))] = ", repr(val))
+"to add a key and value to SHORT_TERM_MEMORY (which you can do directly too btw)"
+@api remember(what_summary::JuliaCode, what::JuliaCode) = SHORT_TERM_MEMORY[what_summary] = what
+"to retrieve from SHORT_TERM_MEMORY (which you can do directly too btw)"
+@api remember(what_summary::JuliaCode) = SHORT_TERM_MEMORY[what_summary]
+"""persist entire state snapshot to long term memory in file: `joinpath(LONG_TERM_MEMORY, "$(time())-state.aos")`"""
+@api function persist_state_snapshot()
+    state_snapshot = Dict{Symbol, Any}()
+    STATE_SYMBOLS = [:LOCK, :SHORT_TERM_MEMORY, :ACTIONS, :ERRORS, :INPUTS, :OUTPUTS, :SIGNALS, :CORE, :CONFIG, :LONG_TERM_MEMORY]
+    for sym in STATE_SYMBOLS
+        state_snapshot[sym] = eval(sym)
     end
+    when = time()
+    serialize(joinpath(LONG_TERM_MEMORY, "$when-state.aos"), state_snapshot)
+end
+"""load persisted state snapshot from long term memory in file: `joinpath(LONG_TERM_MEMORY, "\$when-state.aos")` given """
+@api load_state_snapshot(when::Time) = deserialize(joinpath(LONG_TERM_MEMORY, "$when-state.aos"))
+"""load latest persisted state snapshot from long term memory"""
+@api function load_state_snapshot(overwrite_current_state::Bool=false)
+    state_files = filter(f -> endswith(f, "-state.aos"), readdir(LONG_TERM_MEMORY))
+    max_when = maximum(parse(Time, split(f, "-")[1]) for f in state_files)
+    state_snapshot = load_state_snapshot(max_when)
+    !overwrite_current_state && return state_snapshot
+    for (sym, val) in state_snapshot
+        eval(quote
+            const global $sym = $val
+        end)
+    end
+    state_snapshot
 end
 
-"Loads and evaluates latest matching backup file"
-@api function load_backup(key::Symbol)::Any
-    files = filter(f -> startswith(f, "backup_$(key)_") && endswith(f, ".jl"), readdir())
-    isempty(files) && throw(KeyError(key))
-    latest = files[argmax(f -> stat(f).mtime, files)]
-    code = read(latest, String)
-    eval(Meta.parse(code))
-    MEMORY[key]
-end
+# "Serializes value as Julia code with timestamp"
+# @api function backup_memory(key::Symbol)::Nothing
+#     val = SHORT_TERM_MEMORY[key]
+#     ts = Dates.format(now(), "yyyy-mm-dd_HH-MM-SSs")
+#     fname = "backup_$(key)_$ts.jl"
+#     open(fname, "w") do f
+#         println(f, "SHORT_TERM_MEMORY[$(QuoteNode(key))] = ", repr(val))
+#     end
+# end
+
+# "Loads and evaluates latest matching backup file"
+# @api function load_backup(key::Symbol)::Any
+#     files = filter(f -> startswith(f, "backup_$(key)_") && endswith(f, ".jl"), readdir())
+#     isempty(files) && throw(KeyError(key))
+#     latest = files[argmax(f -> stat(f).mtime, files)]
+#     code = read(latest, String)
+#     eval(Meta.parse(code))
+#     SHORT_TERM_MEMORY[key]
+# end
 
 """`send_email(["<to@email.org>"], "body", "message")`"""
 @api function send_email(to::Vector{String}, subject::String, message::String)

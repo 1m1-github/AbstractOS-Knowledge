@@ -1,11 +1,12 @@
-struct SpeechOutput <: OutputPeripheral end
+@api struct SpeechOutput <: OutputPeripheral end
+OUTPUTS["speech"] = SpeechOutput()
 
 """
 SpeechOutput <: OutputPeripheral allows text-to-speech output to talk
-Use `put!(::SpeechOutput, text::String)` to speak the given text using platform-specific TTS tools.
-Assumes system TTS commands are available (e.g., 'say' on macOS, 'espeak' on Linux, System.Speech on Windows).
+Use `put!(::SpeechOutput, text::String)` to speak the given text
+Now you can talk to me
 """
-function put!(::SpeechOutput, text::String)
+@api function put!(::SpeechOutput, text::String)
     if Sys.isapple()
         run(`say "$text"`)
     elseif Sys.islinux()
@@ -16,5 +17,3 @@ function put!(::SpeechOutput, text::String)
         @warn "Unsupported OS for TTS - cannot speak: $text"
     end
 end
-
-OUTPUTS["speech"] = SpeechOutput()

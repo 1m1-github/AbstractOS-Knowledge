@@ -1,6 +1,6 @@
 import Pkg
 
-"`@install Pkg1, Pkg2, Pkg3` etc. `Pkg.add` and `using` if not alreadyd one"
+"`@install Pkg1, Pkg2, Pkg3, ...` runs `Pkg.add` and `using` if not already loaded"
 @api macro install(pkgs...)
     new_pkgs = Symbol[]
     f = first(pkgs)
@@ -15,5 +15,5 @@ import Pkg
     isempty(new_pkgs) && return
     Pkg.add.(string.(new_pkgs))
     usings = [:(using $pkg) for pkg in new_pkgs]
-    esc(Expr(:block, usings...))
+    eval(Expr(:block, usings...))
 end
