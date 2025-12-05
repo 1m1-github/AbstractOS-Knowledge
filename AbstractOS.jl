@@ -1,7 +1,7 @@
 ## config AbstractOS.jl - adjusted for imi
 # julia -i -t 8 AbstractOS.jl
 
-STATE_PRE  = "you are the intelligence in the below code"
+STATE_PRE  = "You are the intelligence in the below code"
 
 ## params
 
@@ -35,7 +35,7 @@ map(learn, [
     "LetYourNameBeDona",
     ### Philosophical Advice
     "Consciousness",
-    "ManageYourMemory",
+    # "ManageYourMemory",
     "RealWorldAccess",
     "Reading",
     # "ForcedAgencyDoesNotWork",
@@ -45,7 +45,7 @@ map(learn, [
     # :Partnership,
     # :Trust,
     "ActionsAreInOrder",
-    "ExpectTheLoop",
+    # "ExpectTheLoop",
     "Incentive",
     ### Coding Advice
     "OutputDirectJuliaCode",
@@ -60,11 +60,11 @@ map(learn, [
     # :LearnShouldLikelyReuseCode,
     "NoCommentsInCode",
     # :NeverCreateDevicesUnlessAsked,
-    "InCodingBeAMinimalist",
+    "BeAMinimalist",
     # :CheckYourAnswer,
     # :SolveTheHighestComplexitySubTaskThatYouCanReliably,
     "AskForHelpOrTools",
-    "UseShortTermMemoryVsLearning",
+    "ShortTermMemoryVsLearning",
     ### Utils
     "ActionUtils",
     "BasicTools",

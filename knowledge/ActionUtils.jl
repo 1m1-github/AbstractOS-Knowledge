@@ -11,18 +11,18 @@ end
     schedule(ACTIONS[when].task, InterruptException(), error=true)
 end
 
-# "Will `delete!` done or failed `ACTIONS` and the corresponding `ERRORS`"
-# @api function clean_actions_and_errors()
-#     global ACTIONS
-#     for (when, action) in ACTIONS
-#         task = action.task
-#         !istaskdone(task) && !istaskfailed(task) && continue
-#         delete!(ACTIONS, when)
-#         if haskey(ERRORS, when)
-#             delete!(ERRORS, when)
-#         end
-#     end
-# end
+"Will `delete!` done or failed `ACTIONS` and the corresponding `ERRORS`"
+@api function clean_actions_and_errors()
+    global ACTIONS
+    for (when, action) in ACTIONS
+        task = action.task
+        !istaskdone(task) && !istaskfailed(task) && continue
+        delete!(ACTIONS, when)
+        if haskey(ERRORS, when)
+            delete!(ERRORS, when)
+        end
+    end
+end
 
 "will find the `Action` given `what_summary`, `nothing` if not existing"
 @api function find_action(what_summary::JuliaCode)
