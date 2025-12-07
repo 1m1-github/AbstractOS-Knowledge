@@ -8,7 +8,7 @@ struct CmdRedirect
 end
 
 "Uses DuckDuckGo API for searching returning a Dict with :title, :url and :snippet keys"
-function ddg_search(query::String; num_results::Int=10)
+@api function web_search(query::String; num_results::Int=10)
     encoded_query = HTTP.URIs.escapeuri(query)
     url = "https://html.duckduckgo.com/html/?q=$(encoded_query)"
     response = HTTP.get(url)
@@ -115,16 +115,12 @@ end
 @api remember(what_summary::JuliaCode, what::JuliaCode) = SHORT_TERM_MEMORY[what_summary] = what
 "to retrieve from SHORT_TERM_MEMORY (which you can do directly too btw)"
 @api remember(what_summary::JuliaCode) = SHORT_TERM_MEMORY[what_summary]
-"""persist entire state snapshot to long term memory in file: `joinpath(LONG_TERM_MEMORY, "$(time())-state.aos")`"""
+"""persist entire state (except `TASKS` and `ERRORS`) snapshot to long term memory in file: `joinpath(LONG_TERM_MEMORY, "$(time())-state.aos")`"""
 @api function persist_state_snapshot()
     state_snapshot = Dict{Symbol, Any}()
-    STATE_SYMBOLS = [:LOCK, :SHORT_TERM_MEMORY, :ACTIONS, :TASKS, :ERRORS, :INPUTS, :OUTPUTS, :SIGNALS, :CORE, :CONFIG, :LONG_TERM_MEMORY]
+    STATE_SYMBOLS = [:LOCK, :SHORT_TERM_MEMORY, :ACTIONS, :INPUTS, :OUTPUTS, :SIGNALS, :CORE, :CONFIG, :LONG_TERM_MEMORY]
     for sym in STATE_SYMBOLS
         state_snapshot[sym] = eval(sym)
-    end
-    for (when, task) in state_snapshot[:TASKS] # running tasks cannot be serialized
-        !istaskdone(task) && istaskstarted(task) && continue
-        delete!(state_snapshot[:TASKS], when)
     end
     when = time()
     serialize(joinpath(LONG_TERM_MEMORY, "$when-state.aos"), state_snapshot)

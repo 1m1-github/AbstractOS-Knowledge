@@ -72,7 +72,7 @@ map(learn, [
     ### Context
     "Context",
     ### Devices
-    "REPL",
+    # "REPL",
     # :MainBrowser,
     # :LessonsBrowser,
     # "MiniFB",
