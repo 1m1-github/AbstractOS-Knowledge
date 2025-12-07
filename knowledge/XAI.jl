@@ -56,5 +56,7 @@ end
 
 function extract_julia_blocks(text)
     pattern = r"```julia\n(.*?)\n```"s
-    join([m.captures[1] for m in eachmatch(pattern, text)], '\n')
+    combined_julia_blocks = join([m.captures[1] for m in eachmatch(pattern, text)], '\n')
+    !isempty(combined_julia_blocks) && return combined_julia_blocks
+    """$text""" # assume all is Julia
 end

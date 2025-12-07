@@ -65,13 +65,14 @@ map(learn, [
     # :SolveTheHighestComplexitySubTaskThatYouCanReliably,
     "AskForHelpOrTools",
     "ShortTermMemoryVsLearning",
+    "UseVerbatimStrings",
     ### Utils
     "ActionUtils",
     "BasicTools",
-    "Repl",
     ### Context
     "Context",
     ### Devices
+    "REPL",
     # :MainBrowser,
     # :LessonsBrowser,
     # "MiniFB",

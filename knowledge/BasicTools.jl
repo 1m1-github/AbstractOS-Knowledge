@@ -123,9 +123,13 @@ end
 """persist entire state snapshot to long term memory in file: `joinpath(LONG_TERM_MEMORY, "$(time())-state.aos")`"""
 @api function persist_state_snapshot()
     state_snapshot = Dict{Symbol, Any}()
-    STATE_SYMBOLS = [:LOCK, :SHORT_TERM_MEMORY, :ACTIONS, :ERRORS, :INPUTS, :OUTPUTS, :SIGNALS, :CORE, :CONFIG, :LONG_TERM_MEMORY]
+    STATE_SYMBOLS = [:LOCK, :SHORT_TERM_MEMORY, :ACTIONS, :TASKS, :ERRORS, :INPUTS, :OUTPUTS, :SIGNALS, :CORE, :CONFIG, :LONG_TERM_MEMORY]
     for sym in STATE_SYMBOLS
         state_snapshot[sym] = eval(sym)
+    end
+    for (when, task) in state_snapshot[:TASKS] # running tasks cannot be serialized
+        !istaskdone(task) && istaskstarted(task) && continue
+        delete!(state_snapshot[:TASKS], when)
     end
     when = time()
     serialize(joinpath(LONG_TERM_MEMORY, "$when-state.aos"), state_snapshot)
