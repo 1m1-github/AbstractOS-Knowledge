@@ -1,6 +1,6 @@
 import Pkg
 
-"`@install Pkg1, Pkg2, Pkg3, ...` runs `Pkg.add` and `using` if not already loaded"
+"To install Julia Pkgs: `@install Pkg1, Pkg2, Pkg3, ...` runs `Pkg.add` and `using` if not already loaded"
 @api macro install(pkgs...)
     new_pkgs = Symbol[]
     f = first(pkgs)

@@ -53,10 +53,8 @@ end
     end
 end
 
-"Includes hidden files optionally"
-@api function list_directory(path::String=".")::Vector{String}
-    readdir(path)
-end
+"list_directory = readdir"
+@api list_directory(path::String=".")::Vector{String} = readdir(path)
 
 "Captures output streams without blocking"
 @api function run_shell(command::String)::CmdRedirect
@@ -68,11 +66,11 @@ end
     CmdRedirect(stdout_str, stderr_str, proc.exitcode)
 end
 
-"Evaluates module after add for immediate use"
-@api function install_julia_pkg(pkg_name::String)::Nothing
-    Pkg.add(pkg_name)
-    @eval using $(Symbol(pkg_name))
-end
+# "Evaluates module after add for immediate use"
+# @api function install_julia_pkg(pkg_name::String)::Nothing
+#     Pkg.add(pkg_name)
+#     @eval using $(Symbol(pkg_name))
+# end
 
 "Supports common HTTP methods like GET POST"
 @api function send_http_request(method::String, url::String, headers::Dict=Dict(), body::String="")::String
@@ -112,9 +110,6 @@ end
 #     rm(tmp)
 #     b64
 # end
-
-"Takes leading sentences until length limit"
-@api summarize_text(text::String, max_length::Int=200)::String = intelligence(nothing, "", "summarize text:$text", 0.3, max_length)
 
 "to add a key and value to SHORT_TERM_MEMORY (which you can do directly too btw)"
 @api remember(what_summary::JuliaCode, what::JuliaCode) = SHORT_TERM_MEMORY[what_summary] = what

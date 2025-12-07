@@ -13,8 +13,9 @@ end
 
 "Will `delete!` done or failed `TASKS` and the corresponding `ACTIONS` and `ERRORS`"
 @api function clean_actions_and_errors()
-    for (when, task) in ACTIONS
-        !istaskdone(task) && !istaskfailed(task) && continue
+    keys_to_delete = filter(when -> istaskdone(TASKS[when]) || istaskfailed(TASKS[when]), collect(keys(TASKS)))
+    for when in keys_to_delete
+        delete!(TASKS, when)
         haskey(ACTIONS, when) && delete!(ACTIONS, when)
         haskey(ERRORS, when) && delete!(ERRORS, when)
     end
