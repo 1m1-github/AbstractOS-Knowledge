@@ -11,9 +11,9 @@ end
     schedule(TASKS[when], InterruptException(), error=true)
 end
 
-"Will `delete!` (istaskdone || !istaskfailed) `TASKS` and the corresponding `ACTIONS`"
+"Will `delete!` (istaskdone && !istaskfailed) `TASKS` and the corresponding `ACTIONS`"
 @api function clean_tasks_and_actions()
-    keys_to_delete = filter(when -> istaskdone(TASKS[when]) || !istaskfailed(TASKS[when]), collect(keys(TASKS)))
+    keys_to_delete = filter(when -> istaskstarted(TASKS[when]) && istaskdone(TASKS[when]) && !istaskfailed(TASKS[when]), collect(keys(TASKS)))
     for when in keys_to_delete
         delete!(TASKS, when)
         delete!(ACTIONS, when)

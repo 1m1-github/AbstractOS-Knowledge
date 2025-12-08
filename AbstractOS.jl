@@ -74,7 +74,7 @@ map(learn, [
     ### Context
     "Context",
     ### Devices
-    "REPL",
+    # "REPL",
     # :MainBrowser,
     # :LessonsBrowser,
     "MiniFB",
@@ -82,7 +82,7 @@ map(learn, [
     # :MultiPathBrowserOutput,
     # :MultiPathBrowserOutputWithAudioInput,
     # "BrowserOutput",
-    "SpeakerOutputDevice",
+    # "SpeakerOutputDevice",
     "AudioInput",
 ])
 
