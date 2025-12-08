@@ -24,6 +24,7 @@ include(CORE)
 learn(name) = learn(name, read(joinpath(LONG_TERM_MEMORY, "$name.jl"), JuliaCode))
 learn("Pkg") # @install
 learn("XAI") # intelligence
+# learn("Anthropic") # intelligence
 
 ## @true - todo
 
@@ -74,7 +75,7 @@ map(learn, [
     ### Context
     "Context",
     ### Devices
-    # "REPL",
+    "REPL",
     # :MainBrowser,
     # :LessonsBrowser,
     "MiniFB",
@@ -82,7 +83,7 @@ map(learn, [
     # :MultiPathBrowserOutput,
     # :MultiPathBrowserOutputWithAudioInput,
     # "BrowserOutput",
-    # "SpeakerOutputDevice",
+    "SpeakerOutputDevice",
     "AudioInput",
 ])
 

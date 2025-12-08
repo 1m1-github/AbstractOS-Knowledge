@@ -105,7 +105,7 @@ end
 @api remember(what_summary::JuliaCode, what::JuliaCode) = SHORT_TERM_MEMORY[what_summary] = what
 "to retrieve from SHORT_TERM_MEMORY (which you can do directly too btw)"
 @api remember(what_summary::JuliaCode) = SHORT_TERM_MEMORY[what_summary]
-"""persist entire state (except `TASKS` and `EXCEPTIONS`) snapshot to long term memory in file: `joinpath(LONG_TERM_MEMORY, "$(time())-state.aos")`"""
+"""persist entire state (except `TASKS`) snapshot to long term memory in file: `joinpath(LONG_TERM_MEMORY, "$(time())-state.aos")`"""
 @api function persist_state_snapshot()
     state_snapshot = Dict{Symbol, Any}()
     STATE_SYMBOLS = [:LOCK, :SHORT_TERM_MEMORY, :ACTIONS, :INPUTS, :OUTPUTS, :SIGNALS, :CORE, :CONFIG, :LONG_TERM_MEMORY]

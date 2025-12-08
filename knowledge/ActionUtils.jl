@@ -12,11 +12,14 @@ end
 end
 
 "Will `delete!` (istaskdone && !istaskfailed) `TASKS` and the corresponding `ACTIONS`"
-@api function clean_tasks_and_actions()
+function clean_tasks_and_actions()
     keys_to_delete = filter(when -> istaskstarted(TASKS[when]) && istaskdone(TASKS[when]) && !istaskfailed(TASKS[when]), collect(keys(TASKS)))
     for when in keys_to_delete
+        @info "delete!(TASKS, when)", when
         delete!(TASKS, when)
+        @info "delete!(ACTIONS, when)", when
         delete!(ACTIONS, when)
+        @info "delete!(, when)", when
     end
 end
 
