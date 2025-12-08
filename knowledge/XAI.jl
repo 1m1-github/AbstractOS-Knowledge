@@ -1,6 +1,10 @@
 @install HTTP, JSON3
 
-function intelligence(when::Time, who, what_system, what_user, complexity=0.5, max_tokens=2^12, temperature=0.0)::JuliaCode
+@api DEFAULT_COMPLEXITY_XAI = 0.5
+@api DEFAULT_MAX_TOKENS_XAI = 2^12
+@api DEFAULT_TEMPERATURE_XAI = 0.1
+
+function intelligence(when::Time, who, what_system, what_user, complexity=DEFAULT_COMPLEXITY_XAI, max_tokens=DEFAULT_MAX_TOKENS_XAI, temperature=DEFAULT_TEMPERATURE_XAI)::JuliaCode
     messages = [Dict("role" => "system", "content" => what_system)]
     push!(messages, Dict("role" => "user", "content" => what_user))
 
@@ -15,7 +19,8 @@ function intelligence(when::Time, who, what_system, what_user, complexity=0.5, m
         if complexity < 0.3
             complexity = "grok-4-1-fast-non-reasoning"
         elseif complexity < 0.7
-            complexity = "grok-4-1-fast-non-reasoning"
+            # complexity = "grok-4-1-fast-non-reasoning"
+            complexity = "grok-4-1-fast-reasoning"
         else
             complexity = "grok-4-1-fast-reasoning"
         end
@@ -52,7 +57,7 @@ else
     complexity = "grok-4-1-fast-reasoning"
 end
 """
-@api intelligence(what_system, what_user, complexity=0.5, max_tokens=2^12, temperature=0.0)::JuliaCode = intelligence(time(), "self", what_system, what_user, complexity, max_tokens, temperature)
+@api intelligence(what_system, what_user, complexity=DEFAULT_COMPLEXITY_XAI, max_tokens=DEFAULT_MAX_TOKENS_XAI, temperature=DEFAULT_TEMPERATURE_XAI)::JuliaCode = intelligence(time(), "self", what_system, what_user, complexity, max_tokens, temperature)
 
 function extract_julia_blocks(text)
     pattern = r"```julia\n(.*?)\n```"s

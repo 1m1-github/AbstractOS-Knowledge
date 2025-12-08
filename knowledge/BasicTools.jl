@@ -1,14 +1,8 @@
 # @install HTTP, JSON3, Gumbo, SQLite, Plots, Base64, Dates, Cascadia, SMTPClient, Serialization
 @install HTTP, JSON3, Base64, Dates, SMTPClient, Serialization
 
-struct CmdRedirect
-    stdout::String
-    stderr::String
-    exitcode::Int
-end
-
 "Uses DuckDuckGo API for searching returning a Dict with :title, :url and :snippet keys"
-@api function web_search(query::String; num_results::Int=10)
+@api function web_search(query; num_results=10)
     encoded_query = HTTP.URIs.escapeuri(query)
     url = "https://html.duckduckgo.com/html/?q=$(encoded_query)"
     response = HTTP.get(url)
@@ -33,20 +27,20 @@ end
 end
 
 "Removes HTML tags to extract plain text"
-@api function browse_page(url::String)::String
+@api function browse_page(url)
     resp = HTTP.get(url)
     html = String(resp.body)
     replace(html, r"<[^>]*>"s => "")
 end
 
 "Handles binary download safely"
-@api download_file(url::String, local_path::String)::Nothing = HTTP.download(url, local_path)
+@api download_file(url, local_path) = HTTP.download(url, local_path)
 
 "Handles large files efficiently"
-@api read_file(path::String)::String = read(path, String)
+@api read_file(path) = read(path, String)
 
 "Ensures atomic write for safety"
-@api function write_file(path::String, content::String)::Nothing
+@api function write_file(path, content)
     mkpath(dirname(path))
     open(path, "w") do f
         write(f, content)
@@ -54,33 +48,29 @@ end
 end
 
 "list_directory = readdir"
-@api list_directory(path::String=".")::Vector{String} = readdir(path)
+@api list_directory(path=".") = readdir(path)
 
-"Captures output streams without blocking"
-@api function run_shell(command::String)::CmdRedirect
+"run_shell(`echo 1`), throws on error"
+@api function run_shell(cmd::Cmd)::String
     out = IOBuffer()
     err = IOBuffer()
-    proc = run(pipeline(`$command`, stdout=out, stderr=err), wait=true)
-    stdout_str = String(take!(out))
-    stderr_str = String(take!(err))
-    CmdRedirect(stdout_str, stderr_str, proc.exitcode)
+    proc = open(pipeline(cmd; stdout=out, stderr=err), "r")
+    wait(proc)
+    exception = String(take!(err))
+    !isempty(exception) && throw(exception)
+    String(take!(out))
 end
-
-# "Evaluates module after add for immediate use"
-# @api function install_julia_pkg(pkg_name::String)::Nothing
-#     Pkg.add(pkg_name)
-#     @eval using $(Symbol(pkg_name))
-# end
+run_shell(command::String) = run_shell(Cmd(split(command)))
 
 "Supports common HTTP methods like GET POST"
-@api function send_http_request(method::String, url::String, headers::Dict=Dict(), body::String="")::String
+@api function send_http_request(method, url, headers=Dict(), body="")
     hpairs = Pair.(keys(headers), values(headers))
     resp = HTTP.request(method, url, hpairs, body)
     String(resp.body)
 end
 
 "Handles malformed JSON gracefully"
-@api parse_json(json_str::String)::Any = JSON3.read(json_str)
+@api parse_json(json_str) = JSON3.read(json_str)
 
 # "Converts results to rows with column mapping"
 # @api function query_sqlite(db_path::String, query::String)::Vector{Dict{String,Any}}
@@ -115,7 +105,7 @@ end
 @api remember(what_summary::JuliaCode, what::JuliaCode) = SHORT_TERM_MEMORY[what_summary] = what
 "to retrieve from SHORT_TERM_MEMORY (which you can do directly too btw)"
 @api remember(what_summary::JuliaCode) = SHORT_TERM_MEMORY[what_summary]
-"""persist entire state (except `TASKS` and `ERRORS`) snapshot to long term memory in file: `joinpath(LONG_TERM_MEMORY, "$(time())-state.aos")`"""
+"""persist entire state (except `TASKS` and `EXCEPTIONS`) snapshot to long term memory in file: `joinpath(LONG_TERM_MEMORY, "$(time())-state.aos")`"""
 @api function persist_state_snapshot()
     state_snapshot = Dict{Symbol, Any}()
     STATE_SYMBOLS = [:LOCK, :SHORT_TERM_MEMORY, :ACTIONS, :INPUTS, :OUTPUTS, :SIGNALS, :CORE, :CONFIG, :LONG_TERM_MEMORY]
@@ -141,28 +131,8 @@ end
     state_snapshot
 end
 
-# "Serializes value as Julia code with timestamp"
-# @api function backup_memory(key::Symbol)::Nothing
-#     val = SHORT_TERM_MEMORY[key]
-#     ts = Dates.format(now(), "yyyy-mm-dd_HH-MM-SSs")
-#     fname = "backup_$(key)_$ts.jl"
-#     open(fname, "w") do f
-#         println(f, "SHORT_TERM_MEMORY[$(QuoteNode(key))] = ", repr(val))
-#     end
-# end
-
-# "Loads and evaluates latest matching backup file"
-# @api function load_backup(key::Symbol)::Any
-#     files = filter(f -> startswith(f, "backup_$(key)_") && endswith(f, ".jl"), readdir())
-#     isempty(files) && throw(KeyError(key))
-#     latest = files[argmax(f -> stat(f).mtime, files)]
-#     code = read(latest, String)
-#     eval(Meta.parse(code))
-#     SHORT_TERM_MEMORY[key]
-# end
-
 """`send_email(["<to@email.org>"], "body", "message")`"""
-@api function send_email(to::Vector{String}, subject::String, message::String)
+@api function send_email(to::Vector{String}, subject, message)
   from = "<email@1m1.io>"
   body = get_body(to, from, subject, message)
   # body = get_body(to, from, subject, message; cc, replyto)

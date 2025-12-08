@@ -66,20 +66,22 @@ map(learn, [
     "AskForHelpOrTools",
     "ShortTermMemoryVsLearning",
     "UseVerbatimStrings",
+    "DoNotIgnoreRecentExceptions",
     ### Utils
     "ActionUtils",
     "BasicTools",
+    "Typst",
     ### Context
     "Context",
     ### Devices
-    # "REPL",
+    "REPL",
     # :MainBrowser,
     # :LessonsBrowser,
-    # "MiniFB",
+    "MiniFB",
     # :DrawWithCairo,
     # :MultiPathBrowserOutput,
     # :MultiPathBrowserOutputWithAudioInput,
-    "BrowserOutput",
+    # "BrowserOutput",
     "SpeakerOutputDevice",
     "AudioInput",
 ])

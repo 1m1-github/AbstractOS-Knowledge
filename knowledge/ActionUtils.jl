@@ -11,13 +11,12 @@ end
     schedule(TASKS[when], InterruptException(), error=true)
 end
 
-"Will `delete!` done or failed `TASKS` and the corresponding `ACTIONS` and `ERRORS`"
-@api function clean_actions_and_errors()
-    keys_to_delete = filter(when -> istaskdone(TASKS[when]) || istaskfailed(TASKS[when]), collect(keys(TASKS)))
+"Will `delete!` (istaskdone || !istaskfailed) `TASKS` and the corresponding `ACTIONS`"
+@api function clean_tasks_and_actions()
+    keys_to_delete = filter(when -> istaskdone(TASKS[when]) || !istaskfailed(TASKS[when]), collect(keys(TASKS)))
     for when in keys_to_delete
         delete!(TASKS, when)
-        haskey(ACTIONS, when) && delete!(ACTIONS, when)
-        haskey(ERRORS, when) && delete!(ERRORS, when)
+        delete!(ACTIONS, when)
     end
 end
 
@@ -27,5 +26,3 @@ end
     isempty(possible_action_times) && return nothing
     ACTIONS[first(possible_action_times)]
 end
-"will find the `Action` given `when`, `nothing` if not existing"
-@api find_action(when::Time) = get(ACTIONS, when, nothing)

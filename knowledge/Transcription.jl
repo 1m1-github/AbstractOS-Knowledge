@@ -1,10 +1,10 @@
 @install Whisper, Suppressor
 
 const SILENCE_THRESHOLD = 1e-6
-# const WHISPER_FILENAME = "llm/ggml-large-v3.bin"
-const WHISPER_FILENAME = "llm/ggml-base.en.bin"
-# WHISPER_FILENAME = "llm/ggml-small.en.bin"
-# WHISPER_FILENAME = "llm/ggml-tiny.en.bin"
+# const WHISPER_FILENAME = "transciption_dicts/ggml-large-v3.bin"
+const WHISPER_FILENAME = "transciption_dicts/ggml-base.en.bin"
+# WHISPER_FILENAME = "transciption_dicts/ggml-small.en.bin"
+# WHISPER_FILENAME = "transciption_dicts/ggml-tiny.en.bin"
 const WHISPER_CONTEXT = @suppress Whisper.whisper_init_from_file(WHISPER_FILENAME)
 const WHISPER_PARAMS = @suppress Whisper.whisper_full_default_params(Whisper.LibWhisper.WHISPER_SAMPLING_GREEDY)
 const RM_WHISPER_COMMENTS_PATTERN = r"\[.*?\]|\(.*?\)"
@@ -55,11 +55,11 @@ function raw_text_to_conversation!(speaker, raw_text, text_buffer)
     "<$(turn.when)>$speaker:$(turn.what)"
 end
 
-"Uses external whisper CLI if available"
-@api function transcribe_audio(audio_path::String)::String
-    out = IOBuffer()
-    err = IOBuffer()
-    proc = run(pipeline(`whisper $audio_path`, stdout=out, stderr=err), wait=true)
-    success(proc) || throw(ErrorException("Whisper failed: $(String(take!(err)))"))
-    String(take!(out)) |> strip
-end
+# "Uses external whisper CLI if available"
+# @api function transcribe_audio(audio_path::String)::String
+#     out = IOBuffer()
+#     err = IOBuffer()
+#     proc = run(pipeline(`whisper $audio_path`, stdout=out, stderr=err), wait=true)
+#     success(proc) || throw(ErrorException("Whisper failed: $(String(take!(err)))"))
+#     String(take!(out)) |> strip
+# end
