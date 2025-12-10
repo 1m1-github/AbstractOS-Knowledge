@@ -1,5 +1,5 @@
 ## config AbstractOS.jl - adjusted for imi
-# julia -i -t 8 AbstractOS.jl
+# julia -i -t 24 AbstractOS.jl
 
 STATE_PRE  = "You are the intelligence in the below code"
 
@@ -68,6 +68,7 @@ map(learn, [
     "ShortTermMemoryVsLearning",
     "UseVerbatimStrings",
     "DoNotIgnoreRecentExceptions",
+    "WriteTemporaryFilesToTmp",
     ### Utils
     "ActionUtils",
     "BasicTools",
@@ -78,12 +79,12 @@ map(learn, [
     "REPL",
     # :MainBrowser,
     # :LessonsBrowser,
-    "MiniFB",
+    # "MiniFB",
     # :DrawWithCairo,
     # :MultiPathBrowserOutput,
     # :MultiPathBrowserOutputWithAudioInput,
-    # "BrowserOutput",
-    "SpeakerOutputDevice",
+    "BrowserOutput",
+    # "SpeakerOutputDevice",
     "AudioInput",
 ])
 

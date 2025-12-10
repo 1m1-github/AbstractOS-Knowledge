@@ -32,12 +32,6 @@ function get_audios_from_zmq(socket)
     deserialize(IOBuffer(message))
 end
 
-const ZMQ_CONTEXT = ZMQ.context()
-const ZMQ_SOCKET = Socket(ZMQ_CONTEXT, PULL)
-bind(ZMQ_SOCKET, "tcp://*:8888")
-clear_zmq(ZMQ_SOCKET)
-const LISTENING = Ref(true)
-const CALLING_INTELLIGENCE = Ref(true)
 function start_listening(speaker)
     INPUTS["AudioInput"] = AudioInput(speaker, Channel{JuliaCode}())
     @info "Listening on port 8888"
@@ -64,6 +58,14 @@ function start_listening(speaker)
         end
     end
 end
+
+
+const ZMQ_CONTEXT = ZMQ.context()
+const ZMQ_SOCKET = Socket(ZMQ_CONTEXT, PULL)
+bind(ZMQ_SOCKET, "tcp://*:8888")
+clear_zmq(ZMQ_SOCKET)
+const LISTENING = Ref(true)
+const CALLING_INTELLIGENCE = Ref(true)
 
 while get(SIGNALS, "awake", false)
     yield()

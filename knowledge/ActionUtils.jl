@@ -11,15 +11,16 @@ end
     schedule(TASKS[when], InterruptException(), error=true)
 end
 
-"Will `delete!` (istaskdone && !istaskfailed) `TASKS` and the corresponding `ACTIONS`"
-function clean_tasks_and_actions()
-    keys_to_delete = filter(when -> istaskstarted(TASKS[when]) && istaskdone(TASKS[when]) && !istaskfailed(TASKS[when]), collect(keys(TASKS)))
+"""
+ONLY run this when explicity asked, else it removes important context
+Will `delete!` `TASKS`, `ACTIONS` and `EXCEPTIONS` older than `older_than`
+"""
+@api function clean_tasks_and_actions(older_than::Time)
+    # keys_to_delete = filter(when -> istaskstarted(TASKS[when]) && istaskdone(TASKS[when]) && !istaskfailed(TASKS[when]), collect(keys(TASKS)))
+    keys_to_delete = filter(when -> when < older_than, collect(keys(TASKS)))
     for when in keys_to_delete
-        @info "delete!(TASKS, when)", when
         delete!(TASKS, when)
-        @info "delete!(ACTIONS, when)", when
         delete!(ACTIONS, when)
-        @info "delete!(, when)", when
     end
 end
 

@@ -1,26 +1,20 @@
-# @install HTTP, JSON3, Gumbo, SQLite, Plots, Base64, Dates, Cascadia, SMTPClient, Serialization
-@install HTTP, JSON3, Base64, Dates, SMTPClient, Serialization
+@install HTTP, JSON3, Base64, Dates, SMTPClient, Serialization, Gumbo, Cascadia
 
-"Uses DuckDuckGo API for searching returning a Dict with :title, :url and :snippet keys"
+"Uses DuckDuckGo API for searching returning a Dict with :title, :snippet and :url keys"
 @api function web_search(query; num_results=10)
     encoded_query = HTTP.URIs.escapeuri(query)
     url = "https://html.duckduckgo.com/html/?q=$(encoded_query)"
     response = HTTP.get(url)
     html = String(response.body)
+    doc = parsehtml(html)
+    get_inner(x, result) = text(only(eachmatch(Selector(".result__$x"), result)))
     results = []
-    link_pattern = r"<a rel=\"nofollow\" class=\"result__a\" href=\"([^\"]+)\">(.+?)</a>"
-    snippet_pattern = r"<a class=\"result__snippet\"[^>]*>(.+?)</a>"
-    links = collect(eachmatch(link_pattern, html))
-    snippets = collect(eachmatch(snippet_pattern, html))
-    for i in 1:min(num_results, length(links))
-        title = replace(links[i].captures[2], r"<[^>]+>" => "")
-        url = links[i].captures[1]
-        snippet = i <= length(snippets) ? 
-            replace(snippets[i].captures[1], r"<[^>]+>" => "") : ""
+    result = collect(eachmatch(Selector(".result.results_links.results_links_deep.web-result"), doc.root))[1]
+    for result in eachmatch(Selector(".result.results_links.results_links_deep.web-result"), doc.root)
         push!(results, Dict(
-            :title => strip(title),
-            :url => url,
-            :snippet => strip(snippet)
+            :title => get_inner("a", result),
+            :snippet => get_inner("snippet", result),
+            :url => get_inner("url", result),
         ))
     end
     results
@@ -30,7 +24,30 @@ end
 @api function browse_page(url)
     resp = HTTP.get(url)
     html = String(resp.body)
-    replace(html, r"<[^>]*>"s => "")
+    clean_html(url, html)
+end
+function walk!(url, buffer, node)
+        if node isa HTMLElement
+            tag_sym = tag(node)
+            tag_sym ∈ (:script, :style) && return
+            if tag_sym == :a && haskey(node.attributes, "href")
+                href = node.attributes["href"]
+                if !contains(href, "://") href = "$url$href" end
+                map(walk, children(node))
+                print(buffer, "<", href, "> ")
+                return
+            end
+            map(walk, children(node))
+        elseif node isa HTMLText
+            print(buffer, text(node))
+        end
+    end
+function clean_html(url, html)
+    dom = parsehtml(html)
+    body = only(eachmatch(Selector("body"), dom.root))
+    buffer = IOBuffer()
+    walk!(url, buffer, body)
+    strip(String(take!(buffer)))
 end
 
 "Handles binary download safely"
