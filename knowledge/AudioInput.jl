@@ -1,6 +1,6 @@
 @install PortAudio, SampledSignals, ZMQ, Serialization
 
-include(joinpath(LONG_TERM_MEMORY, "Transcription.jl"))
+include(joinpath(STORAGE, "Transcription.jl"))
 
 "listens to audio received via ZMQ and `put!`s text"
 struct AudioInput <: InputPeripheral
@@ -59,7 +59,6 @@ function start_listening(speaker)
     end
 end
 
-
 const ZMQ_CONTEXT = ZMQ.context()
 const ZMQ_SOCKET = Socket(ZMQ_CONTEXT, PULL)
 bind(ZMQ_SOCKET, "tcp://*:8888")
@@ -67,7 +66,7 @@ clear_zmq(ZMQ_SOCKET)
 const LISTENING = Ref(true)
 const CALLING_INTELLIGENCE = Ref(true)
 
-while get(SIGNALS, "awake", false)
+while get(FLAGS, "awake", false)
     yield()
 end
 const AUDIO_INPUT_TASK = start_listening("imi")

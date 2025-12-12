@@ -31,13 +31,13 @@ function walk!(url, buffer, node)
             tag_sym = tag(node)
             tag_sym ∈ (:script, :style) && return
             if tag_sym == :a && haskey(node.attributes, "href")
-                href = node.attributes["href"]
+                hrefa= node.attributes["href"]
                 if !contains(href, "://") href = "$url$href" end
-                map(walk, children(node))
+                map(n -> walk!(url, buffer, n), children(node))
                 print(buffer, "<", href, "> ")
                 return
             end
-            map(walk, children(node))
+            map(n -> walk!(url, buffer, n), children(node))
         elseif node isa HTMLText
             print(buffer, text(node))
         end
@@ -118,25 +118,20 @@ end
 #     b64
 # end
 
-"to add a key and value to SHORT_TERM_MEMORY (which you can do directly too btw)"
-@api remember(what_summary::JuliaCode, what::JuliaCode) = SHORT_TERM_MEMORY[what_summary] = what
-"to retrieve from SHORT_TERM_MEMORY (which you can do directly too btw)"
-@api remember(what_summary::JuliaCode) = SHORT_TERM_MEMORY[what_summary]
-"""persist entire state (except `TASKS`) snapshot to long term memory in file: `joinpath(LONG_TERM_MEMORY, "$(time())-state.aos")`"""
 @api function persist_state_snapshot()
     state_snapshot = Dict{Symbol, Any}()
-    STATE_SYMBOLS = [:LOCK, :SHORT_TERM_MEMORY, :ACTIONS, :INPUTS, :OUTPUTS, :SIGNALS, :CORE, :CONFIG, :LONG_TERM_MEMORY]
+    STATE_SYMBOLS = [:LOCK, :MEMORY :CODE, :HISTORY, :INPUTS, :OUTPUTS, :FLAGS, :SELF, :BOOT, :STORAGE]
     for sym in STATE_SYMBOLS
         state_snapshot[sym] = eval(sym)
     end
     when = time()
-    serialize(joinpath(LONG_TERM_MEMORY, "$when-state.aos"), state_snapshot)
+    serialize(joinpath(STORAGE, "$when-state.aos"), state_snapshot)
 end
-"""load persisted state snapshot from long term memory in file: `joinpath(LONG_TERM_MEMORY, "\$when-state.aos")` given """
-@api load_state_snapshot(when::Time) = deserialize(joinpath(LONG_TERM_MEMORY, "$when-state.aos"))
+"""load persisted state snapshot from long term memory in file: `joinpath(STORAGE, "\$when-state.aos")` given """
+@api load_state_snapshot(when::Time) = deserialize(joinpath(STORAGE, "$when-state.aos"))
 """load latest persisted state snapshot from long term memory"""
 @api function load_state_snapshot(overwrite_current_state::Bool=false)
-    state_files = filter(f -> endswith(f, "-state.aos"), readdir(LONG_TERM_MEMORY))
+    state_files = filter(f -> endswith(f, "-state.aos"), readdir(STORAGE))
     max_when = maximum(parse(Time, split(f, "-")[1]) for f in state_files)
     state_snapshot = load_state_snapshot(max_when)
     !overwrite_current_state && return state_snapshot

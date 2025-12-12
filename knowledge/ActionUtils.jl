@@ -1,32 +1,31 @@
-"will cause an InterruptException in the `task` given the `what_summary` of an `Action`"
-@api function stop_action(what_summary::JuliaCode)
-    action = find_action(what_summary)
+"will cause an InterruptException in the `task` given the `input_summary` of an `Action`"
+@api function stop_action(input_summary::JuliaCode)
+    action = find_action(input_summary)
     isnothing(action) && return
-    stop_action(action.when)
+    stop_action(action.ts)
 end
 
-"will cause an InterruptException for the `task` given the `when` of an `Action`"
-@api function stop_action(when::Time)
-    !haskey(TASKS, when) && return
-    schedule(TASKS[when], InterruptException(), error=true)
+"will cause an InterruptException for the `task` given the `ts` of an `Action`"
+@api function stop_action(ts::Time)
+    !haskey(TASKS, ts) && return
+    schedule(TASKS[ts], InterruptException(), error=true)
 end
 
 """
-ONLY run this when explicity asked, else it removes important context
-Will `delete!` `TASKS`, `ACTIONS` and `EXCEPTIONS` older than `older_than`
+ONLY run this ts explicity asked, else it removes important context
+Will `delete!` `TASKS` and `HISTORY` older than `cutoff`
 """
-@api function clean_tasks_and_actions(older_than::Time)
-    # keys_to_delete = filter(when -> istaskstarted(TASKS[when]) && istaskdone(TASKS[when]) && !istaskfailed(TASKS[when]), collect(keys(TASKS)))
-    keys_to_delete = filter(when -> when < older_than, collect(keys(TASKS)))
-    for when in keys_to_delete
-        delete!(TASKS, when)
-        delete!(ACTIONS, when)
+@api function clean_tasks_and_actions(cutoff::Time)
+    keys_to_delete = filter(ts -> ts < cutoff, collect(keys(TASKS)))
+    for ts in keys_to_delete
+        delete!(TASKS, ts)
+        delete!(HISTORY, ts)
     end
 end
 
-"will find the `Action` given `what_summary`, `nothing` if not existing"
-@api function find_action(what_summary::JuliaCode)
-    possible_action_times = sort(filter(when -> ACTIONS[when].what_summary == what_summary, collect(keys(ACTIONS))))
+"will find the `Action` given `input_summary`, `nothing` if not existing"
+@api function find_action(input_summary::JuliaCode)
+    possible_action_times = sort(filter(ts -> HISTORY[ts].input_summary == input_summary, collect(keys(HISTORY))))
     isempty(possible_action_times) && return nothing
-    ACTIONS[first(possible_action_times)]
+    HISTORY[first(possible_action_times)]
 end

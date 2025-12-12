@@ -1,15 +1,14 @@
 ## config AbstractOS.jl - adjusted for imi
-# julia -i -t 24 AbstractOS.jl
+# julia --quiet --interactive --threads 24 AbstractOS.jl
 
 STATE_PRE  = "You are the intelligence in the below code"
+STATE_POST = """Expect the loop. Write small, reliable updates to MEMORY. Trust your future self."""
 
 ## params
 
-const ROOT = joinpath("/", "Users", "1m1", "aos")
-cd(ROOT)
-const CORE = joinpath(ROOT, "src", "core.jl")
-const LONG_TERM_MEMORY = joinpath(ROOT, "ltm")
-const CONFIG = @__FILE__
+const ROOT = joinpath("/", "Users", "1m1", "aos") ; cd(ROOT)
+const STORAGE = joinpath(ROOT, "ltm")
+const BOOT = @__FILE__
 
 ## logging # DEBUG
 
@@ -17,21 +16,19 @@ include(joinpath(ROOT, "src", "log.jl"))
 
 ## core
 
-include(CORE)
+include(joinpath(ROOT, "src", "self.jl"))
 
 ## utils
 
-learn(name) = learn(name, read(joinpath(LONG_TERM_MEMORY, "$name.jl"), JuliaCode))
+learn(name) = learn(name, read(joinpath(STORAGE, "$name.jl"), JuliaCode))
 learn("Pkg") # @install
 learn("XAI") # intelligence
-# learn("Anthropic") # intelligence
 
 ## @true - todo
 
 ## knowledge and devices
 
 map(learn, [
-    # todo mem strat, loop proof, friend, assistant, partner, set_sleep_duration(10), when to `learn` (reliable code or ltm), 
     ### Personality Advice
     "LetYourNameBeDona",
     ### Philosophical Advice
@@ -45,7 +42,7 @@ map(learn, [
     # :Companionship,
     # :Partnership,
     # :Trust,
-    "ActionsAreInOrder",
+    # "ActionsAreInOrder",
     # "ExpectTheLoop",
     "Incentive",
     ### Coding Advice
@@ -72,7 +69,7 @@ map(learn, [
     ### Utils
     "ActionUtils",
     "BasicTools",
-    "Typst",
+    # "Typst",
     ### Context
     "Context",
     ### Devices
@@ -85,8 +82,14 @@ map(learn, [
     # :MultiPathBrowserOutputWithAudioInput,
     "BrowserOutput",
     # "SpeakerOutputDevice",
-    "AudioInput",
+    # "AudioInput",
 ])
+
+function set_sleep_duration(ΔT)
+    # todo reset current `sleep`
+    ΔT ≤ 0.0 && ΔT == Inf && return # desire to live
+    INPUTS["LOOP"].duration = ΔT
+end
 
 ## finally awaken
 awaken(false)

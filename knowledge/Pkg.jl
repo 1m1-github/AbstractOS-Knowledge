@@ -10,10 +10,11 @@ import Pkg
         new_pkgs = [f]
     else
         throw("unknown type of first(pkgs): $(typeof(f))")
-    end
+    end 
     new_pkgs = filter(pkg -> !isdefined(Main, pkg), new_pkgs)
     isempty(new_pkgs) && return
-    Pkg.add.(string.(new_pkgs))
+    not_installed_pkgs = filter(pkg -> pkg ∈ keys(Pkg.project().dependencies), new_pkgs)
+    Pkg.add.(string.(not_installed_pkgs))
     usings = [:(using $pkg) for pkg in new_pkgs]
     eval(Expr(:block, usings...))
 end

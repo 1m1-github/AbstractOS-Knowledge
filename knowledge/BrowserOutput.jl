@@ -16,10 +16,11 @@ const HTML_BASE = "<html>$(HTML_HEAD)$(HTML_BODY)</html>"
     current_html::String
 end
 function state(::BrowserOutput)
+    device = OUTPUTS["BrowserOutput"]
     ix1 = findfirst("<body", device.current_html)[1]
     ix3 = findlast("</body>", device.current_html)[1]
     ix2 = findfirst(">", device.current_html[ix1:ix3])[1]
-    device.current_html[ix1+ix2:ix3-1]
+    """"$(device.current_html[ix1+ix2:ix3-1])\""""
 end
 create_html(body_inner::String) = replace(HTML_BASE, HTML_BODY_INNER => body_inner)
 """
